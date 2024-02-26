@@ -12,32 +12,48 @@ function setDefaultStrokeStyle(color, lineWidth) {
 }
 
 function drawCoordinateAxes(width, height, step, stripLength) {
+    context.font = '20px Arial'
+    context.fillStyle = 'red'
+    context.textAlign = 'center'
+    context.fillText('X', width - scale, height / 2 - scale) // x label
+    context.fillText('Y', width / 2 + scale, scale) // y label
+    
     context.beginPath()
     
+    // horizontal line drawing
     context.moveTo(0, height / 2)
     context.lineTo(width, height / 2)
 
+    // vertical line drawing
     context.moveTo(width / 2, 0)
     context.lineTo(width / 2, height)
 
+    // x arrow drawing
+    context.moveTo(width, height / 2)
+    context.lineTo(width - scale / 1.5, height / 2 - scale / 3)
+    context.moveTo(width, height / 2)
+    context.lineTo(width - scale / 1.5, height / 2 + scale / 3)
+
+    // y arrow drawing
+    context.moveTo(width / 2, 0)
+    context.lineTo(width / 2 - scale / 3, scale / 1.5)
+    context.moveTo(width / 2, 0)
+    context.lineTo(width / 2 + scale / 3, scale / 1.5)
+
+    // x coordinate lines drawing
     for (let x = width / 2 + step; x <= width; x += step) {
         context.moveTo(x, height / 2 - stripLength / 2)
         context.lineTo(x, height / 2 + stripLength / 2)
+        context.moveTo(width - x, height / 2 - stripLength / 2)
+        context.lineTo(width - x, height / 2 + stripLength / 2)
     }
 
-    for (let x = width / 2 - step; x >= 0; x -= step) {
-        context.moveTo(x, height / 2 - stripLength / 2)
-        context.lineTo(x, height / 2 + stripLength / 2)
-    }
-
+    // y coordinate lines drawing
     for (let y = height / 2 + step; y <= height; y += step) {
         context.moveTo(width / 2 - stripLength / 2, y)
         context.lineTo(width / 2 + stripLength / 2, y)
-    }
-
-    for (let y = height / 2 - step; y >= 0; y -= step) {
-        context.moveTo(width / 2 - stripLength / 2, y)
-        context.lineTo(width / 2 + stripLength / 2, y)
+        context.moveTo(width / 2 - stripLength / 2, height - y)
+        context.lineTo(width / 2 + stripLength / 2, height - y)
     }
 
     context.stroke()
@@ -46,6 +62,7 @@ function drawCoordinateAxes(width, height, step, stripLength) {
 function drawGrid(width, height, step) {
     context.beginPath()
 
+    // horizontal grid lines drawing
     for (let y = height / 2 + step; y <= height; y += step) {
         context.moveTo(0, y);
         context.lineTo(width, y);
@@ -53,6 +70,7 @@ function drawGrid(width, height, step) {
         context.lineTo(width, height / 2 - (y - height / 2));
     }
     
+    // vertical grid lines drawing
     for (let x = width / 2 + step; x <= width; x += step) {
         context.moveTo(x, 0);
         context.lineTo(x, height);
@@ -66,9 +84,10 @@ function drawGrid(width, height, step) {
     setDefaultStrokeStyle('black', 1)
 }
 
-function drawRectangleVertex(centerX, centerY, width, height, color) {
+function drawSquareVertexes(centerX, centerY, width, height, color) {
     context.beginPath()
 
+    // drawing 3 triangle vertexes with rectangle form 
     context.moveTo(centerX - width / 2, centerY + height / 2)
     context.lineTo(centerX - width / 2, centerY - height / 2)
     context.lineTo(centerX + width / 2, centerY - height / 2)
@@ -80,8 +99,10 @@ function drawRectangleVertex(centerX, centerY, width, height, color) {
     context.stroke()
 }
 
-function drawCircleVertex(x, y, radius, color) {
+function drawCircleVertexes(x, y, radius, color) {
     context.beginPath()
+
+    // drawing 3 triangle vertexes with circle form
     context.arc(x, y, radius, 0, Math.PI * 2)
 
     context.fillStyle = color
@@ -89,35 +110,35 @@ function drawCircleVertex(x, y, radius, color) {
     context.stroke()
 }
 
-function drawTriangle(x, y, length, vertexShape, selectedColor) {
-    const height = Math.sqrt(3) / 2 * length
-    const x2 = x - length / 2
-    const y2 = y + height
-    const x3 = x + length / 2
+function drawTriangle(x1, y1, x2, y2, vertexShape, selectedColor) {
+    const x3 = x1 + (x2 - x1) / 2 - Math.sqrt(3) * (y2 - y1) / 2
+    const y3 = y1 + (y2 - y1) / 2 + Math.sqrt(3) * (x2 - x1) / 2
 
-    // заборона малювати поза межами canvas
-    if (y < 0 || y2 > canvas.height || x2 < 0 || x3 > canvas.width) return
+    // checking if triangle fits canvas box
+    // if (y < 0 || y2 > canvas.height || x2 < 0 || x3 > canvas.width) return
  
     context.beginPath()
 
-    context.moveTo(x, y)
+    // drawing triangle
+    context.moveTo(x1, y1)
     context.lineTo(x2, y2)
-    context.lineTo(x3, y2)
+    context.lineTo(x3, y3)
     context.closePath()
 
     context.stroke()
     context.fillStyle = selectedColor
     context.fill()
 
+    // checking selected vertex shapes
     if (vertexShape === 'square') {
-        drawRectangleVertex(x, y, 5, 5)
-        drawRectangleVertex(x2, y2, 5, 5)
-        drawRectangleVertex(x3, y2, 5, 5)
+        drawSquareVertexes(x1, y1, 5, 5)
+        drawSquareVertexes(x2, y2, 5, 5)
+        drawSquareVertexes(x3, y3, 5, 5)
 
     } else if (vertexShape === 'circle') {
-        drawCircleVertex(x, y, 3)
-        drawCircleVertex(x2, y2, 3)
-        drawCircleVertex(x3, y2, 3)
+        drawCircleVertexes(x1, y1, 3)
+        drawCircleVertexes(x2, y2, 3)
+        drawCircleVertexes(x3, y3, 3)
     }
 }
 
@@ -129,17 +150,20 @@ drawCoordinateAxes(canvas.width, canvas.height, scale, 8)
 drawGrid(canvas.width, canvas.height, scale)
 
 btnDraw.onclick = () => {
-    const x = parseInt(document.getElementById('x-coord').value) * scale + canvas.width / 2
-    const y = parseInt(document.getElementById('y-coord').value) * scale * (-1) + canvas.height / 2
-    const length = parseInt(document.getElementById('side-length').value) * scale
+    // getting values from user input
+    const x1 = parseFloat(document.getElementById('x1-coord').value) * scale + canvas.width / 2
+    const x2 = parseFloat(document.getElementById('x2-coord').value) * scale + canvas.width / 2
+    const y1 = parseFloat(document.getElementById('y1-coord').value) * scale * (-1) + canvas.height / 2
+    const y2 = parseFloat(document.getElementById('y2-coord').value) * scale * (-1) + canvas.height / 2
     const vertexShape = document.getElementById('shape').value
     const selectedColor = document.getElementById('triangle-color').value
 
-    // drawTriangle(200, 300, 100, 'circle', 'black')
-    drawTriangle(x, y, length, vertexShape, selectedColor);
+    // drawTriangle(0, 0, 6, 0, 'circle', 'red')
+    drawTriangle(x1, y1, x2, y2, vertexShape, selectedColor);
 }
 
 btnClear.onclick = () => {
+    // clearing previously drawed triangles
     context.clearRect(0, 0, canvas.width, canvas.height)
     drawCoordinateAxes(canvas.width, canvas.height, scale, 8)
     drawGrid(canvas.width, canvas.height, scale)
