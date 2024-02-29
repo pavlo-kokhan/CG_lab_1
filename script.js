@@ -4,19 +4,29 @@ const container = document.querySelector('.canvas-container')
 canvas.width = container.clientWidth
 canvas.height = container.clientHeight
 
-const scale = 20
+//coordinate axes settings
+const scale = 20 // 1 element on axes = amount of pixels
+const xyLabelsMargin = 25
+const stripLength = 8
+const arrowLength = 20
+/////
+
+//vertexes of triangle settings
+const circleVertexRadius = 6
+const squareVertexSide = 10
+/////
 
 function setDefaultStrokeStyle(color, lineWidth) {
     context.strokeStyle = color
     context.lineWidth = lineWidth
 }
 
-function drawCoordinateAxes(width, height, step, stripLength) {
+function drawCoordinateAxes(width, height, step, stripLength, arrowLength) {
     context.font = '20px Arial'
     context.fillStyle = 'red'
     context.textAlign = 'center'
-    context.fillText('X', width - scale, height / 2 - scale) // x label
-    context.fillText('Y', width / 2 + scale, scale) // y label
+    context.fillText('X', width - xyLabelsMargin, height / 2 - xyLabelsMargin) // x label
+    context.fillText('Y', width / 2 + xyLabelsMargin, xyLabelsMargin) // y label
     
     context.beginPath()
     
@@ -30,15 +40,15 @@ function drawCoordinateAxes(width, height, step, stripLength) {
 
     // x arrow drawing
     context.moveTo(width, height / 2)
-    context.lineTo(width - scale / 1.5, height / 2 - scale / 3)
+    context.lineTo(width - arrowLength / 1.5, height / 2 - arrowLength / 3)
     context.moveTo(width, height / 2)
-    context.lineTo(width - scale / 1.5, height / 2 + scale / 3)
+    context.lineTo(width - arrowLength / 1.5, height / 2 + arrowLength / 3)
 
     // y arrow drawing
     context.moveTo(width / 2, 0)
-    context.lineTo(width / 2 - scale / 3, scale / 1.5)
+    context.lineTo(width / 2 - arrowLength / 3, arrowLength / 1.5)
     context.moveTo(width / 2, 0)
-    context.lineTo(width / 2 + scale / 3, scale / 1.5)
+    context.lineTo(width / 2 + arrowLength / 3, arrowLength / 1.5)
 
     // x coordinate lines drawing
     for (let x = width / 2 + step; x <= width; x += step) {
@@ -131,14 +141,14 @@ function drawTriangle(x1, y1, x2, y2, vertexShape, selectedColor) {
 
     // checking selected vertex shapes
     if (vertexShape === 'square') {
-        drawSquareVertexes(x1, y1, 5, 5)
-        drawSquareVertexes(x2, y2, 5, 5)
-        drawSquareVertexes(x3, y3, 5, 5)
+        drawSquareVertexes(x1, y1, squareVertexSide, squareVertexSide, selectedColor)
+        drawSquareVertexes(x2, y2, squareVertexSide, squareVertexSide, selectedColor)
+        drawSquareVertexes(x3, y3, squareVertexSide, squareVertexSide, selectedColor)
 
     } else if (vertexShape === 'circle') {
-        drawCircleVertexes(x1, y1, 3)
-        drawCircleVertexes(x2, y2, 3)
-        drawCircleVertexes(x3, y3, 3)
+        drawCircleVertexes(x1, y1, circleVertexRadius, selectedColor)
+        drawCircleVertexes(x2, y2, circleVertexRadius, selectedColor)
+        drawCircleVertexes(x3, y3, circleVertexRadius, selectedColor)
     }
 }
 
@@ -146,7 +156,7 @@ const btnDraw = document.querySelector(".btn-draw")
 const btnClear = document.querySelector(".btn-clear")
 
 setDefaultStrokeStyle('black', 1)
-drawCoordinateAxes(canvas.width, canvas.height, scale, 8)
+drawCoordinateAxes(canvas.width, canvas.height, scale, stripLength, arrowLength)
 drawGrid(canvas.width, canvas.height, scale)
 
 btnDraw.onclick = () => {
@@ -165,6 +175,6 @@ btnDraw.onclick = () => {
 btnClear.onclick = () => {
     // clearing previously drawed triangles
     context.clearRect(0, 0, canvas.width, canvas.height)
-    drawCoordinateAxes(canvas.width, canvas.height, scale, 8)
+    drawCoordinateAxes(canvas.width, canvas.height, scale, stripLength, arrowLength)
     drawGrid(canvas.width, canvas.height, scale)
 }
